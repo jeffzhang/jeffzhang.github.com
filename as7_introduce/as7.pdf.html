@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>JBoss AS7 简介</title>
+   
+   
+
+<style>
+html, body { margin: 0; padding: 0; }
+
+body { font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; }
+
+a:link, a:visited { color: black; }
+
+h1 { font-size: 30pt;  }
+h2 { font-size: 28pt;  }
+h3 { font-size: 25pt;  }
+p, li, dt, dd, td, th { font-size: 18pt; }
+
+pre { font-size: 14pt;  }
+pre.small { font-size: 11pt; }
+
+pre.code {
+        background-color: azure;
+        padding: 5px;
+      }
+     
+ul { list-style-type: square; }    
+   
+.center { text-align: center; }   
+     
+.slide { page-break-after: always;
+         min-height: 100mm;
+         padding: 40px;
+         
+         border: 1px dotted black;
+
+/*      
+  background: -moz-linear-gradient( top, maroon, red);
+*/
+       }
+
+
+body    { font-family: Helvetica; }
+          
+h1, h2, h3, h4, h5, h6 { color: #0050B0;  }
+
+h1  { text-align: center; }
+
+
+/* todo: use pre.class - needs to get added using @@@lang */
+pre {
+  background-color: white;
+  border: 2px solid #B05000;
+  padding: 10px;
+}
+
+div.code {
+  background-color: white;
+  border: 2px solid #B05000;
+  padding: 10px; 
+}
+
+div.code pre {
+  background-color: white; 
+  border: 0;
+  padding: 5px;
+}
+
+
+
+/*
+for princexml (CSS3 paged media support)
+@page { size: A4 landscape }
+*/
+</style>
+
+</head>
+<body>
+
+<div class="presentation">
+
+<div class='slide '>
+<h1 id="jboss-as-7-简介">JBoss AS 7 简介</h1><p class="center">Jeff Zhang (Senior Engineer, JBoss AS)</p>
+<p class="center">jeff.zhang AT jboss.org</p>
+
+
+</div>
+<div class='slide '>
+<h1 id="section">日程</h1><ul>
+  <li>历史</li>
+  <li>为什么开始开发 AS7</li>
+  <li>基础知识</li>
+  <li>结构</li>
+  <li>组件</li>
+  <li>举例</li>
+</ul>
+
+
+</div>
+<div class='slide '>
+<h1 id="jboss-as-历史">JBoss AS 历史</h1><p>业界市场份额最大的开源 JavaEE 应用服务器</p>
+
+<h3 id="as-4">AS 4</h3>
+
+<ul>
+  <li>JavaEE 1.4, EJB 2.1 </li>
+  <li>最为成熟的版本，直到如今依然很多人使用</li>
+  <li>JMX作为内核</li>
+</ul>
+
+<h3 id="as-5">AS 5</h3>
+
+<ul>
+  <li>JavaEE 5, EJB 3</li>
+  <li>重新设计的MicroContaner作为内核(Adrian Brock), 开发历时时间很长</li>
+  <li>EAP 5.1 基于 AS5, 会继续维护</li>
+</ul>
+
+
+</div>
+<div class='slide '>
+<h1 id="jboss-as-历史-1">JBoss AS 历史</h1><h3 id="as-6">AS 6</h3>
+<ul>
+  <li>JavaEE 6, EJB 3.1</li>
+  <li>在AS5基础之上的改进版，期望能大幅度提高启动时间，以及对domain支持</li>
+  <li>如今 AS6 CR1 tag，预计年内Release(Then die)</li>
+</ul>
+
+<h3 id="as-7">AS 7</h3>
+<ul>
+  <li>JavaEE 6</li>
+  <li>重新设计内核，原有的MC的相关组件几乎全部抛弃</li>
+  <li>AS作为主容器，其他子系统作为extension的思路保持不变</li>
+</ul>
+
+
+</div>
+<div class='slide '>
+<h1 id="as7">为什么开始开发 AS7</h1><ul>
+  <li>原有AS非常臃肿 &gt;170M</li>
+  <li>启动时间非常缓慢 (TODO 有一个业界应用服务器比较图)</li>
+  <li>部署时间缓慢，受到MC相关组件设计的限制</li>
+  <li>Domain特性缺失</li>
+  <li>扩展性受限，复杂的内核机制</li>
+  <li>新人新思路</li>
+</ul>
+
+
+</div>
+<div class='slide '>
+<h1 id="section-1">资源</h1><h3 id="people">People</h3>
+
+<ul>
+  <li>David M Lloyd (MSC, JBoss-modules, 架构师)</li>
+  <li>Jason Greene (Team leader， 领导)</li>
+  <li>Brian Stansberry (Domain, HA等高端特性负责)</li>
+</ul>
+
+<h3 id="url">URL</h3>
+
+<ul>
+  <li><a href="https://github.com/jbossas/jboss-as">source code (https://github.com/jbossas/jboss-as)</a></li>
+  <li><a href="http://community.jboss.org/community/jbossas/dev/jboss_as7_development?view=all">discussing forum (http://community.jboss.org/community/jbossas/dev/jboss_as7_development?view=all)</a></li>
+  <li><a href="http://sourceforge.net/projects/jboss/files/">download (http://sourceforge.net/projects/jboss/files/)</a></li>
+</ul>
+
+
+</div>
+<div class='slide '>
+<h1 id="section-2">基础知识</h1><h3 id="java相关">Java相关</h3>
+
+<ul>
+  <li>Stax (替换原有JBossXB)</li>
+  <li>Classloader</li>
+  <li>OO 面向对象</li>
+</ul>
+
+<h3 id="section-3">工具</h3>
+<ul>
+  <li>Maven 3 编译，包管理</li>
+  <li>Git, github.com</li>
+</ul>
+
+<h3 id="as相关知识">原有AS相关知识</h3>
+<ul>
+  <li>子系统，系统组件，JavaEE相关规范实现</li>
+  <li>部署模型,(借鉴原有的Deployer框架，代码重写，思路基本一致)</li>
+  <li>Sar, Thread, LogSystem</li>
+</ul>
+
+
+</div>
+<div class='slide '>
+<h1 id="section-4">编译和启动</h1><h3 id="section-5">编译</h3>
+
+<pre><code>* git clone https://github.com/jbossas/jboss-as.git 
+  (如果参与项目，需要在自己的帐号下clone项目，然后编译)
+* cd jboss-as
+* ./build.sh install
+</code></pre>
+
+<h3 id="section-6">启动</h3>
+
+<p>编译或者下载解包后</p>
+
+<pre><code>&gt; cd $AS_HOME/bin
+&gt; ./standalone.sh
+</code></pre>
+
+<p>会看到</p>
+
+<pre><code>10:15:28,382 INFO  [modules] JBoss Modules version 1.0.0.Beta11
+10:15:31,217 INFO  [server] Starting standalone server
+10:15:31,447 INFO  [server] Activating core services
+...
+10:15:35,366 INFO  ... Starting JCA Subsystem (JBoss IronJacamar 1.0.0.Beta3)
+10:15:35,408 INFO  ... Started FileSystemDeploymentService for directory ...
+10:15:35,411 INFO  ... JBoss AS 7.0.0.Alpha2 "Halloween" started in 4028ms.
+</code></pre>
+
+
+</div>
+<div class='slide '>
+<h1 id="section-7">结构</h1><h3 id="section-8">两种启动模式</h3>
+
+<ul>
+  <li>Standalone 独立进程</li>
+  <li>Domain 域模式，多个JVM进程连接成一个域</li>
+</ul>
+
+<h3 id="section-9">目录结构</h3>
+<ul>
+  <li>bin 启动脚本</li>
+  <li>docs 文档，包含范例，schema, license</li>
+  <li>modules 按照一定目录结构组成，classloader可以按照组件化的方式加载其中的模块。</li>
+  <li>domain 域模式的配置文件，数据，日志等</li>
+  <li>standalone 独立模式的配置文件，数据，日志等</li>
+</ul>
+
+
+</div>
+<div class='slide '>
+<h1 id="section-10">举例， 独立模式配置文件</h1><h3 id="standalonexml">standalone.xml</h3>
+
+<p>扩展模块</p>
+
+<pre><code>&lt;extensions&gt;
+    &lt;extension module="org.jboss.as.connector"/&gt;
+    &lt;extension module="org.jboss.as.jmx"/&gt;
+    &lt;extension module="org.jboss.as.logging"/&gt;
+&lt;/extensions&gt;
+</code></pre>
+
+<p>子系统</p>
+
+<pre><code>&lt;extensions&gt;
+    &lt;subsystem xmlns="urn:jboss:domain:logging:1.0"&gt;
+        &lt;console-handler name="CONSOLE"&gt;
+            &lt;level name="INFO"/&gt;
+            &lt;formatter&gt;
+                &lt;pattern-formatter pattern="%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%E%n"/&gt;
+            &lt;/formatter&gt;
+        &lt;/console-handler&gt;
+&lt;/extensions&gt;
+</code></pre>
+
+
+</div>
+<div class='slide '>
+<h1 id="alpha1的子系统">目前(1.0.0.Alpha1)的子系统</h1><ul>
+  <li>connector (JCA, Ironjacamar)</li>
+  <li>jmx</li>
+  <li>logging (JBoss Logging)</li>
+  <li>managed-beans</li>
+  <li>messaging (JMS, Hornetq)</li>
+  <li>naming</li>
+  <li>osgi (JBoss Osgi)</li>
+  <li>remoting (JBoss remoting)</li>
+  <li>sar</li>
+  <li>threads (JBoss thread)</li>
+  <li>transcations (JBoss Transaction)</li>
+  <li>web (JBossWeb)</li>
+</ul>
+
+
+</div>
+<div class='slide '>
+<h1 id="section-11">很快还会加入</h1><ul>
+  <li>ejb (ear)</li>
+  <li>security (PickBox)</li>
+  <li>webservice (JBossWS)</li>
+  <li>cdi (Weld)</li>
+  <li>rs (Resteasy)</li>
+  <li>…</li>
+</ul>
+
+
+</div>
+<div class='slide '>
+<h1 id="section-12">核心组件</h1><h3 id="msc">MSC</h3>
+
+<ul>
+  <li>“微内核”组件</li>
+  <li>纯Java，不用xml中bean定义和Annotation</li>
+  <li>目标，小而快</li>
+  <li>注入，依赖性，生命期管理</li>
+</ul>
+
+<h3 id="jboss-modules">JBoss-Modules</h3>
+
+<ul>
+  <li>管理扩展组件</li>
+  <li>classloader管理器</li>
+  <li>借鉴Osgi</li>
+</ul>
+
+
+</div>
+<div class='slide '>
+<h1 id="section-13">核心接口和概念</h1><h3 id="section-14">核心接口和类</h3>
+
+<ul>
+  <li>org.jboss.msc.service.Service 服务，定义生命期</li>
+  <li>org.jboss.msc.service.BatchBuilder 构造服务和依赖性</li>
+  <li>org.jboss.msc.service.ServiceController 服务控制器</li>
+  <li>org.jboss.msc.value.InjectedValue 值注入包装器，以及相关的类，构成值注入</li>
+</ul>
+
+<h3 id="section-15">核心概念和关键类</h3>
+
+<ul>
+  <li>Extension 扩展点 META-INF/services/org.jboss.as.Extension</li>
+  <li>Parser 解析器 解析xml配置文件 (XMLElementReader)</li>
+  <li>SubsystemAdd 添加子系统 (AbstractSubsystemAdd)</li>
+  <li>SubsystemElement/EnvironmentElement/Namepace/Element/Attribute 定义schema解析出来的元素</li>
+  <li>Services 扩展的自定义服务 (org.jboss.msc.service.Service)</li>
+  <li>Processor 组件内容解析和处理，类似原来的Deployer (DeploymentUnitProcessor)</li>
+  <li>DeploymentChainSelector 部署类型选择器</li>
+</ul>
+
+
+</div>
+<div class='slide '>
+<h1 id="transcation">举例一，Transcation</h1><ul>
+  <li>TransactionsExtension initialize方法，注册解析器</li>
+  <li>TransactionSubsystemElementParser readElement方法，解析Transaction相关属性</li>
+  <li>TransactionSubsystemAdd applyUpdate方法,通过BatchBuilder加入服务和依赖性</li>
+  <li>TransactionManagerService start/stop方法</li>
+</ul>
+
+
+</div>
+<div class='slide '>
+<h1 id="sar">举例二, Sar</h1><ul>
+  <li>启动服务过程和上页类似</li>
+  <li>
+    <p>SarSubsystemAdd applyUpdate方法中，加入处理器，</p>
+
+    <p><code>addDeploymentProcessor(batchBuilder, new ServiceDeploymentParsingProcessor(),</code></p>
+
+    <p><code>addDeploymentProcessor(batchBuilder, new ParsedServiceDeploymentProcessor(),</code></p>
+  </li>
+  <li>ServiceDeploymentParsingProcessor processDeployment方法，处理jar/sar，读入META-INF/jboss-service.xml文件</li>
+  <li>ParsedServiceDeploymentProcessor processDeployment方法，加载对应类，启动服务</li>
+</ul>
+
+
+</div>
+<div class='slide '>
+<h1 id="section-16">休息…</h1><p class="center">End</p>
+</div>
+
+
+  </div> <!-- presentation -->
+</body>
+</html> 
+

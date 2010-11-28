@@ -1,0 +1,24 @@
+http://slideshow.rubyforge.org/
+
+apt-get install rubygems1.9.1
+$ which gem
+/usr/bin/gem
+
+gem install slideshow'
+
+$ gem list --local
+*** LOCAL GEMS ***
+kramdown (0.12.0)
+RedCloth (4.2.3)
+slideshow (0.9.7)
+
+.text markdown
+.textile textile
+.rst reStructuredText
+
+slideshow as7.text
+as7.html -> s6 template
+as7.html.pdf
+
+apt-get install wkhtmltopdf
+wkhtmltopdf --outline --orientation Landscape as7.pdf.html as7.pdf
